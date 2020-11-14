@@ -32,7 +32,7 @@ namespace WeakTableGCStall
                     {
                         var go = new object();
                         weakGarbage.Add(go);
-                        wt.Add(go, new object());
+                        wt.Add(go, new object()); // comment this to see the behavior when not using ConditionalWeakTable entries
                     }
                     weakTableEntries += 10000;
 
