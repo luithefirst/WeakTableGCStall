@@ -13,6 +13,8 @@ namespace WeakTableGCStall
     {
         static void Main(string[] args)
         {
+            GCMonitor.Register();
+
             var weakGarbage = new List<object>(10000000);
             var wt = new ConditionalWeakTable<object, object>();
 
