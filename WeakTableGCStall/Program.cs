@@ -18,7 +18,7 @@ namespace WeakTableGCStall
             var weakGarbage = new List<object>(10000000);
             var wt = new ConditionalWeakTable<object, object>();
 
-            var runtime = new Stopwatch();
+            var runtime = Stopwatch.StartNew();
             var garbageTime = Stopwatch.StartNew();
             var updateTime = Stopwatch.StartNew();
             var avgTime = new MedianWindow(20);
