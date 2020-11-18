@@ -15,8 +15,8 @@ namespace WeakTableGCStall
         {
             GCMonitor.Register();
 
-            var weakGarbage = new List<object>(10000000);
-            var wt = new ConditionalWeakTable<object, object>();
+            var programData = new List<object>(10000000);
+            var computationTable = new ConditionalWeakTable<object, object>();
 
             var runtime = Stopwatch.StartNew();
             var garbageTime = Stopwatch.StartNew();
@@ -33,8 +33,8 @@ namespace WeakTableGCStall
                     for (int k = 0; k < 10000; k++)
                     {
                         var go = new object();
-                        weakGarbage.Add(go);
-                        wt.Add(go, new object()); // comment this to see the behavior when not using ConditionalWeakTable entries
+                        programData.Add(go);
+                        computationTable.Add(go, new object()); // comment this to see the behavior when not using ConditionalWeakTable entries
                     }
                     weakTableEntries += 10000;
 
@@ -61,7 +61,17 @@ namespace WeakTableGCStall
                 if (iteration > 100)
                 {
                     if (time / avgTime.Value > 100)
-                        Console.WriteLine(String.Format(CultureInfo.InvariantCulture, "Update Time Outlier (Iteration={0}): {1:0.0}ms (x{2:0}, Mean={3}us)", iteration, time / 1000, time / avgTime.Value, (int)avgTime.Value));
+                    {
+                        var gcInfo = GC.GetGCMemoryInfo(GCKind.Ephemeral);
+                        Console.WriteLine(String.Format(CultureInfo.InvariantCulture, 
+                            "Update Time Outlier (Iteration={0}): {1:0.0}ms (x{2:0}, Mean={3}us) GCPause: {4:0.0}ms GCIndex={5}", 
+                            iteration, 
+                            time / 1000, 
+                            time / avgTime.Value, 
+                            (int)avgTime.Value, 
+                            gcInfo.PauseDurations[0].TotalMilliseconds,
+                            gcInfo.Index));
+                    }
                 }
 
                 iteration++;
