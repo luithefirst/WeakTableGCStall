@@ -42,6 +42,11 @@ namespace WeakTableGCStall
             static readonly string gen0 = "gen-0-gc-count";
             static readonly string gen1 = "gen-1-gc-count";
             static readonly string gen2 = "gen-2-gc-count";
+            static readonly string allocRate = "alloc-rate";
+            static readonly string gen0Size = "gen-0-size";
+            static readonly string gen1Size = "gen-1-size";
+            static readonly string gen2Size = "gen-2-size";
+            static readonly string lohSize = "loh-size";
 
             private readonly Dictionary<string, float> m_sourceValues = new Dictionary<string, float>()
             {
@@ -49,6 +54,7 @@ namespace WeakTableGCStall
                 { gen0, 0.0f },
                 { gen1, 0.0f },
                 { gen2, 0.0f },
+                { allocRate, 0.0f },
             };
 
             int m_updateCnt = 0;
@@ -104,7 +110,28 @@ namespace WeakTableGCStall
 
             void PrintValues()
             {
-                Console.WriteLine(String.Format(CultureInfo.InvariantCulture, "[GC] Time={0:0.0}% Gen0={1} Gen1={2} Gen2={3}", m_sourceValues[gcTime], m_sourceValues[gen0], m_sourceValues[gen1], m_sourceValues[gen2]));
+                Console.WriteLine(
+                    String.Format(
+                        CultureInfo.InvariantCulture, 
+                        "[GC] Time={0:0.0}% Alloc={1:#}/s Gen0={2} Gen1={3} Gen2={4}", 
+                        m_sourceValues[gcTime], 
+                        FormatMemory((long)m_sourceValues[allocRate]), 
+                        m_sourceValues[gen0], 
+                        m_sourceValues[gen1], 
+                        m_sourceValues[gen2]));
+            }
+
+            string FormatMemory(long mem)
+            {
+                var l2 = Math.Log2(Math.Max(1, mem));
+                var l2M = (int)((l2 - 4) / 10);
+                var shift = Math.Clamp(l2M, 0, 3);
+                var value = mem >> (shift * 10);
+                var unt = shift == 0 ? "B " :
+                          shift == 1 ? "KB" :
+                          shift == 2 ? "MB" : "GB";
+
+                return value.ToString("N0") + unt;
             }
         }
     }
